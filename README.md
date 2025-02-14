@@ -50,6 +50,7 @@ RSA16_EncryptBytes( &rsa, message, MESSAGE_SIZE, cipher );
 
 ### Encrypting a Message (C#)
 ```csharp
+byte[] message = new byte[MESSAGE_SIZE];
 byte[] chiper = rsa16.EncryptBytes( message );
 ```
 
