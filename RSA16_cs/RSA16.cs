@@ -3,14 +3,14 @@ using System.Security.Cryptography;
 
 namespace EncryptionExperiments {
     /// <summary>
-    /// 16ビットRSA暗号化器
+    /// 16-bit RSA encryptor
     /// </summary>
     class RSA16 {
         /// <summary>
-        /// コンストラクタ
+        /// Constructor
         /// </summary>
         /// <remarks>
-        /// ランダムな16ビットRSA鍵を生成してRSA暗号化器を生成します。
+        /// Generates a new 16-bit RSA encryptor with random keys.
         /// </remarks>
         /// <exception cref="Exception"></exception>
         public RSA16() {
@@ -20,10 +20,10 @@ namespace EncryptionExperiments {
         }
 
         /// <summary>
-        /// コンストラクタ
+        /// Constructor
         /// </summary>
         /// <remarks>
-        /// n, e, dを指定してRSA暗号化器を生成します。
+        /// Initializes an RSA encryptor with the specified keys (n, e, d).
         /// </remarks>
         /// <param name="n"></param>
         /// <param name="e"></param>
@@ -32,10 +32,10 @@ namespace EncryptionExperiments {
         }
 
         /// <summary>
-        /// コンストラクタ
+        /// Constructor
         /// </summary>
         /// <remarks>
-        /// n, e, d, ivを指定してRSA暗号化器を生成します。
+        /// Initializes an RSA encryptor with the specified keys (n, e, d) and the specified CBC mode initialization vector.
         /// </remarks>
         /// <param name="n"></param>
         /// <param name="e"></param>
@@ -50,14 +50,14 @@ namespace EncryptionExperiments {
         }
 
         /// <summary>
-        /// CBCモードの初期化ベクトルのリセット
+        /// Reset the CBC mode initialization vector
         /// </summary>
         public void ResetIV() {
             ResetIV( 0 );
         }
 
         /// <summary>
-        /// CBCモードの初期化ベクトルのリセット
+        /// Reset the CBC mode initialization vector
         /// </summary>
         /// <param name="iv"></param>
         public void ResetIV( byte iv ) {
@@ -66,76 +66,76 @@ namespace EncryptionExperiments {
         }
 
         /// <summary>
-        /// モジュラス
+        /// Modulus
         /// </summary>
         private readonly UInt16 n;
 
         /// <summary>
-        /// 公開指数
+        /// Public exponent
         /// </summary>
         private readonly UInt16 e;
 
         /// <summary>
-        /// 秘密指数
+        /// Private exponent
         /// </summary>
         private readonly UInt16 d;
 
         /// <summary>
-        /// 公開鍵(n, e)
+        /// Public key (n, e)
         /// </summary>
         public (UInt16, UInt16) PublicKey => (n, e);
 
         /// <summary>
-        /// 秘密鍵(n, d)
+        /// Private key (n, d)
         /// </summary>
         public (UInt16, UInt16) PrivateKey => (n, d);
 
         /// <summary>
-        /// 公開鍵と秘密鍵のセット(n, e, d)
+        /// Set of keys (n, e, d)
         /// </summary>
         public (UInt16, UInt16, UInt16) Key => (n, e, d);
 
         /// <summary>
-        /// CBCモードの暗号化用の初期化ベクトル
+        /// IV for encryption
         /// </summary>
         private byte IV_enc = 0;
 
         /// <summary>
-        /// CBCモードの復号化用の初期化ベクトル
+        /// IV for decryption
         /// </summary>
         private byte IV_dec = 0;
 
         #region Functions for key generation
 
         /// <summary>
-        /// 鍵の生成
+        /// Generate keys
         /// </summary>
         /// <returns></returns>
         public static (UInt16 n, UInt16 e, UInt16 d) GenerateKeys() {
             UInt16 n, e, d;
-            // ランダムな16ビットRSA鍵の生成
+            // Generate two 16-bit primes p and q
             UInt16 p, q;
             do {
                 p = GenerateRandomPrime( 16, 256 );
                 do {
                     q = GenerateRandomPrime( 16, 256 );
-                } while ( p == q ); // pとqが異なることを保証
+                } while ( p == q ); // Make sure p and q are different
                 n = (UInt16)( p * q );
             } while ( n < 256 );
 
             int phi_n = ( p - 1 ) * ( q - 1 );
 
-            // 公開鍵eの選定
+            // Generate public exponent e
             e = GenerateRandomE( phi_n );
 
-            // 秘密鍵dの計算
+            // Generate private exponent d
             d = (UInt16)ModularInverse( e, phi_n );
 
             return (n, e, d);
         }
 
         /// <summary>
-        /// ランダムな素数の生成
+        /// Generate a random prime number
         /// </summary>
         /// <param name="minValue"></param>
         /// <param name="maxValue"></param>
@@ -150,7 +150,7 @@ namespace EncryptionExperiments {
         }
 
         /// <summary>
-        /// 素数判定
+        /// Check if a number is prime
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
@@ -173,7 +173,7 @@ namespace EncryptionExperiments {
         }
 
         /// <summary>
-        /// 公開鍵eの生成
+        /// Generate a random public exponent e
         /// </summary>
         /// <param name="phi_n"></param>
         /// <returns></returns>
@@ -187,7 +187,7 @@ namespace EncryptionExperiments {
         }
 
         /// <summary>
-        /// 逆元計算
+        /// Modular inverse
         /// </summary>
         /// <param name="a"></param>
         /// <param name="m"></param>
@@ -202,7 +202,7 @@ namespace EncryptionExperiments {
         }
 
         /// <summary>
-        /// 拡張ユークリッドの互除法
+        /// Extended Euclidean algorithm
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
@@ -224,10 +224,14 @@ namespace EncryptionExperiments {
 
         #endregion
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Encrypt a message
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public UInt16 Encrypt( byte message ) {
             return (UInt16)ModularExponentiation( message, e, n );
-            //// 原初的な実装
+            //// Basic implementation
             //int c = 1;
             //for ( int i = 0 ; i < e ; i++ ) {
             //    c = ( c * message ) % n;
@@ -235,10 +239,14 @@ namespace EncryptionExperiments {
             //return (UInt16)c;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Decrypt a cipher
+        /// </summary>
+        /// <param name="cipher"></param>
+        /// <returns></returns>
         public byte Decrypt( UInt16 cipher ) {
             return (byte)ModularExponentiation( cipher, d, n );
-            //// 原初的な実装
+            //// Basic implementation
             //int m = 1;
             //int c = (int)cipher;
             //for ( int i = 0 ; i < d ; i++ ) {
@@ -248,12 +256,12 @@ namespace EncryptionExperiments {
         }
 
         /// <summary>
-        /// バイト配列の暗号化
+        /// Encrypt a byte array
         /// </summary>
         /// <remarks>
-        /// CBCモードでの暗号化を行います。
-        /// 初期化ベクトルは都度更新されます。
-        /// CBCは独自の実装を行っています。
+        /// CBC mode encryption is performed.
+        /// The initialization vector is updated each time.
+        /// CBC has its own implementation.
         /// </remarks>
         /// <param name="message"></param>
         /// <returns></returns>
@@ -263,27 +271,31 @@ namespace EncryptionExperiments {
             byte[] cipher = new byte[ nChars * 2 ];
             int p = 0;
             for ( int i = 0 ; i < nChars ; i++ ) {
+                // Encrypt the message
                 UInt16 c = (UInt16)ModularExponentiation( message[ i ], e, n );
+                // Store lower byte first
                 cipher[ p ] = (byte)( c & 0xff );
                 cipher[ p ] ^= c_prev;
                 c_prev = cipher[ p ];
                 p++;
+                // Store higher byte next
                 cipher[ p ] = (byte)( c >> 8 );
                 cipher[ p ] ^= c_prev;
                 c_prev = cipher[ p ];
                 p++;
             }
+            // Update the initialization vector for the next block
             IV_enc = c_prev;
             return cipher;
         }
 
         /// <summary>
-        /// バイト配列の復号化
+        /// Decrypt a byte array
         /// </summary>
         /// <remarks>
-        /// CBCモードでの復号化を行います。
-        /// 初期化ベクトルは都度更新されます。
-        /// CBCは独自の実装を行っています。
+        /// CBC mode decryption is performed.
+        /// The initialization vector is updated each time.
+        /// CBC has its own implementation.
         /// </remarks>
         /// <param name="cipher"></param>
         /// <returns></returns>
@@ -293,25 +305,30 @@ namespace EncryptionExperiments {
             byte c_prev = IV_dec;
             int p = 0;
             for ( int i = 0 ; i < nChars ; i++ ) {
+                // Retrieve lower byte first
                 byte c_curr = cipher[ p ];
                 cipher[ p ] ^= c_prev;
                 byte cl = cipher[ p ];
                 c_prev = c_curr;
                 p++;
+                // Retrieve higher byte next
                 c_curr = cipher[ p ];
                 cipher[ p ] ^= c_prev;
                 byte ch = cipher[ p ];
                 c_prev = c_curr;
                 p++;
+                // Combine the two bytes
                 UInt16 c = (UInt16)( cl | ( ch << 8 ) );
+                // Decrypt the message
                 message[ i ] = (byte)ModularExponentiation( c, d, n );
             }
+            // Update the initialization vector for the next block
             IV_dec = c_prev;
             return message;
         }
 
         /// <summary>
-        /// べき乗剰余計算
+        /// Modular exponentiation
         /// </summary>
         /// <param name="baseValue"></param>
         /// <param name="exponent"></param>

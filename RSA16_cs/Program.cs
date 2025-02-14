@@ -9,7 +9,7 @@ namespace EncryptionExperiments {
                 var rsa16 = new RSA16( n, e, d, (byte)( j % 256 ) );
                 Console.WriteLine( $"Test #{j} n: {n}, e: {e}, d: {d}" );
 
-                // 0から255までのメッセージを暗号化して復号化
+                // Encription and Decryption of 256 messages
                 {
                     for ( int i = 0 ; i <= 255 ; i++ ) {
                         byte message = (byte)i;
@@ -24,7 +24,7 @@ namespace EncryptionExperiments {
                     }
                 }
 
-                // 256バイトのメッセージを暗号化して復号化
+                // Encryption and Decryption of 256 bytes
                 {
                     byte[] message = new byte[ 256 ];
                     for ( int i = 0 ; i < 256 ; i++ ) {
