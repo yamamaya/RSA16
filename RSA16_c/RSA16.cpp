@@ -37,13 +37,11 @@ void RSA16_EncryptBytes( RSA16* rsa, const uint8_t* message, size_t message_len,
 		// Encrypt the message byte
         uint16_t c = (uint16_t)ModularExponentiation( message[ i ], rsa->e, rsa->n );
 		// Store the low byte
-        cipher[ p ] = (uint8_t)( c & 0xff );
-        cipher[ p ] ^= c_prev;
+        cipher[ p ] = (uint8_t)( c & 0xff ) ^ c_prev;
         c_prev = cipher[ p ];
         p++;
 		// Store the high byte
-        cipher[ p ] = (uint8_t)( c >> 8 );
-        cipher[ p ] ^= c_prev;
+        cipher[ p ] = (uint8_t)( c >> 8 ) ^ c_prev;
         c_prev = cipher[ p ];
         p++;
     }

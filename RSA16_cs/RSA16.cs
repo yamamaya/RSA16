@@ -274,13 +274,11 @@ namespace EncryptionExperiments {
                 // Encrypt the message
                 UInt16 c = (UInt16)ModularExponentiation( message[ i ], e, n );
                 // Store lower byte first
-                cipher[ p ] = (byte)( c & 0xff );
-                cipher[ p ] ^= c_prev;
+                cipher[ p ] = (byte)( ( c & 0xff ) ^ c_prev );
                 c_prev = cipher[ p ];
                 p++;
                 // Store higher byte next
-                cipher[ p ] = (byte)( c >> 8 );
-                cipher[ p ] ^= c_prev;
+                cipher[ p ] = (byte)( ( c >> 8 ) ^ c_prev );
                 c_prev = cipher[ p ];
                 p++;
             }
