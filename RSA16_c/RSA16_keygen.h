@@ -1,5 +1,8 @@
 #pragma once
 
+// This file provides the implementation of the RSA16 key generation functions.
+// It will be not necessary if you need only encryption and decryption functions.
+
 #include <stdint.h>
 #include "RSA16.h"
 
