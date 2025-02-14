@@ -306,16 +306,12 @@ namespace EncryptionExperiments {
             int p = 0;
             for ( int i = 0 ; i < nChars ; i++ ) {
                 // Retrieve lower byte first
-                byte c_curr = cipher[ p ];
-                cipher[ p ] ^= c_prev;
-                byte cl = cipher[ p ];
-                c_prev = c_curr;
+                byte cl = (byte)( cipher[ p ] ^ c_prev );
+                c_prev = cipher[ p ];
                 p++;
                 // Retrieve higher byte next
-                c_curr = cipher[ p ];
-                cipher[ p ] ^= c_prev;
-                byte ch = cipher[ p ];
-                c_prev = c_curr;
+                byte ch = (byte)( cipher[ p ] ^ c_prev );
+                c_prev = cipher[ p ];
                 p++;
                 // Combine the two bytes
                 UInt16 c = (UInt16)( cl | ( ch << 8 ) );

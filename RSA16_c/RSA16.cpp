@@ -52,22 +52,18 @@ void RSA16_EncryptBytes( RSA16* rsa, const uint8_t* message, size_t message_len,
 }
 
 // Decrypt an array of bytes
-void RSA16_DecryptBytes( RSA16* rsa, uint8_t* cipher, size_t cipher_len, uint8_t* message ) {
+void RSA16_DecryptBytes( RSA16* rsa, const uint8_t* cipher, size_t cipher_len, uint8_t* message ) {
     size_t nChars = cipher_len / 2;
     uint8_t c_prev = rsa->IV_dec;
     size_t p = 0;
     for ( size_t i = 0; i < nChars; i++ ) {
 		// Retrieve the low byte
-        uint8_t c_curr = cipher[ p ];
-        cipher[ p ] ^= c_prev;
-        uint8_t cl = cipher[ p ];
-        c_prev = c_curr;
+        uint8_t cl = cipher[ p ] ^ c_prev;
+        c_prev = cipher[ p ];
         p++;
 		// Retrieve the high byte
-        c_curr = cipher[ p ];
-        cipher[ p ] ^= c_prev;
-        uint8_t ch = cipher[ p ];
-        c_prev = c_curr;
+        uint8_t ch = cipher[ p ] ^ c_prev;
+        c_prev = cipher[ p ];
         p++;
 		// Decrypt the message byte
         uint16_t c = (uint16_t)( cl | ( ch << 8 ) );

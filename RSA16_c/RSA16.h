@@ -27,4 +27,4 @@ uint8_t RSA16_Decrypt( RSA16* rsa, uint16_t cipher );
 void RSA16_EncryptBytes( RSA16* rsa, const uint8_t* message, size_t message_len, uint8_t* cipher );
 
 // Decrypt an array of bytes
-void RSA16_DecryptBytes( RSA16* rsa, uint8_t* cipher, size_t cipher_len, uint8_t* message );
+void RSA16_DecryptBytes( RSA16* rsa, const uint8_t* cipher, size_t cipher_len, uint8_t* message );
