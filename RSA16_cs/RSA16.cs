@@ -15,8 +15,8 @@ namespace OaktreeLab.Utils.Cryptography {
         /// <exception cref="Exception"></exception>
         public RSA16() {
             (n, e, d) = GenerateKeys();
-            this.IV_enc = 0;
-            this.IV_dec = 0;
+            this.IV_enc = DefaultIV;
+            this.IV_dec = DefaultIV;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace OaktreeLab.Utils.Cryptography {
         /// <param name="n"></param>
         /// <param name="e"></param>
         /// <param name="d"></param>
-        public RSA16( UInt16 n, UInt16 e, UInt16 d ) : this( n, e, d, 0 ) {
+        public RSA16( UInt16 n, UInt16 e, UInt16 d ) : this( n, e, d, DefaultIV ) {
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace OaktreeLab.Utils.Cryptography {
         /// Reset the CBC mode initialization vector
         /// </summary>
         public void ResetIV() {
-            ResetIV( 0 );
+            ResetIV( DefaultIV );
         }
 
         /// <summary>
@@ -68,6 +68,11 @@ namespace OaktreeLab.Utils.Cryptography {
             IV_enc = iv;
             IV_dec = iv;
         }
+
+        /// <summary>
+        /// Default initialization vector
+        /// </summary>
+        private const byte DefaultIV = 0x5C;
 
         /// <summary>
         /// Modulus
@@ -276,14 +281,13 @@ namespace OaktreeLab.Utils.Cryptography {
             int p = 0;
             for ( int i = 0 ; i < nChars ; i++ ) {
                 // Encrypt the message
-                UInt16 c = (UInt16)ModularExponentiation( message[ i ], e, n );
+                UInt16 c = (UInt16)ModularExponentiation( (byte)( message[ i ] ^ c_prev ), e, n );
                 // Store lower byte first
                 cipher[ p ] = (byte)( ( c & 0xff ) ^ c_prev );
-                c_prev = cipher[ p ];
                 p++;
                 // Store higher byte next
                 cipher[ p ] = (byte)( ( c >> 8 ) ^ c_prev );
-                c_prev = cipher[ p ];
+                c_prev = (byte)( message[ i ] ^ cipher[ p ] );
                 p++;
             }
             // Update the initialization vector for the next block
@@ -309,16 +313,15 @@ namespace OaktreeLab.Utils.Cryptography {
             for ( int i = 0 ; i < nChars ; i++ ) {
                 // Retrieve lower byte first
                 byte cl = (byte)( cipher[ p ] ^ c_prev );
-                c_prev = cipher[ p ];
                 p++;
                 // Retrieve higher byte next
                 byte ch = (byte)( cipher[ p ] ^ c_prev );
-                c_prev = cipher[ p ];
-                p++;
                 // Combine the two bytes
                 UInt16 c = (UInt16)( cl | ( ch << 8 ) );
                 // Decrypt the message
-                message[ i ] = (byte)ModularExponentiation( c, d, n );
+                message[ i ] = (byte)(ModularExponentiation( c, d, n ) ^ c_prev );
+                c_prev = (byte)( message[ i ] ^ cipher[ p ] );
+                p++;
             }
             // Update the initialization vector for the next block
             IV_dec = c_prev;

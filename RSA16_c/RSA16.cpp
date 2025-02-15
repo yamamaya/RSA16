@@ -35,14 +35,13 @@ void RSA16_EncryptBytes( RSA16* rsa, const uint8_t* message, size_t message_len,
     size_t p = 0;
     for ( size_t i = 0; i < nChars; i++ ) {
         // Encrypt the message byte
-        uint16_t c = (uint16_t)ModularExponentiation( message[ i ], rsa->e, rsa->n );
+        uint16_t c = (uint16_t)ModularExponentiation( message[ i ] ^ c_prev, rsa->e, rsa->n );
         // Store the low byte
         cipher[ p ] = (uint8_t)( c & 0xff ) ^ c_prev;
-        c_prev = cipher[ p ];
         p++;
         // Store the high byte
         cipher[ p ] = (uint8_t)( c >> 8 ) ^ c_prev;
-        c_prev = cipher[ p ];
+        c_prev = message[ i ] ^ cipher[ p ];
         p++;
     }
     // Update the IV for next encryption
@@ -57,15 +56,14 @@ void RSA16_DecryptBytes( RSA16* rsa, const uint8_t* cipher, size_t cipher_len, u
     for ( size_t i = 0; i < nChars; i++ ) {
         // Retrieve the low byte
         uint8_t cl = cipher[ p ] ^ c_prev;
-        c_prev = cipher[ p ];
         p++;
         // Retrieve the high byte
         uint8_t ch = cipher[ p ] ^ c_prev;
-        c_prev = cipher[ p ];
-        p++;
         // Decrypt the message byte
         uint16_t c = (uint16_t)( cl | ( ch << 8 ) );
-        message[ i ] = (uint8_t)ModularExponentiation( c, rsa->d, rsa->n );
+        message[ i ] = (uint8_t)ModularExponentiation( c, rsa->d, rsa->n ) ^ c_prev;
+        c_prev = message[ i ] ^ cipher[ p ];
+        p++;
     }
     // Update the IV for next decryption
     rsa->IV_dec = c_prev;
