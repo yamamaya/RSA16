@@ -225,7 +225,7 @@ namespace OaktreeLab.Utils.Cryptography {
         #endregion
 
         /// <summary>
-        /// Encrypt a message
+        /// Encrypt a message with the public key(n, e)
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
@@ -240,7 +240,7 @@ namespace OaktreeLab.Utils.Cryptography {
         }
 
         /// <summary>
-        /// Decrypt a cipher
+        /// Decrypt a cipher with the private key(n, d)
         /// </summary>
         /// <param name="cipher"></param>
         /// <returns></returns>
@@ -256,7 +256,7 @@ namespace OaktreeLab.Utils.Cryptography {
         }
 
         /// <summary>
-        /// Encrypt a byte array
+        /// Encrypt a byte array with the public key(n, e)
         /// </summary>
         /// <remarks>
         /// CBC mode encryption is performed.
@@ -288,7 +288,7 @@ namespace OaktreeLab.Utils.Cryptography {
         }
 
         /// <summary>
-        /// Decrypt a byte array
+        /// Decrypt a byte array with the private key(n, d)
         /// </summary>
         /// <remarks>
         /// CBC mode decryption is performed.
@@ -319,6 +319,101 @@ namespace OaktreeLab.Utils.Cryptography {
             // Update the initialization vector for the next block
             IV_dec = c_prev;
             return message;
+        }
+
+        /// <summary>
+        /// Sign a message with the private key(n, d)
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public UInt16 Sign( byte message ) {
+            return (UInt16)ModularExponentiation( message, d, n );
+        }
+
+        /// <summary>
+        /// Verify a signature with the public key(n, e)
+        /// </summary>
+        /// <param name="signature"></param>
+        /// <returns></returns>
+        public byte Verify( UInt16 signature ) {
+            return (byte)ModularExponentiation( signature, e, n );
+        }
+
+        /// <summary>
+        /// Verify a signature with the public key(n, e)
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="signature"></param>
+        /// <returns></returns>
+        public bool Verify( byte message, UInt16 signature ) {
+            byte decryptedSignature = (byte)ModularExponentiation( signature, e, n );
+            return message == decryptedSignature;
+        }
+
+        /// <summary>
+        /// Sign a byte array with the private key(n, d)
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public byte[] SignBytes( byte[] message ) {
+            int nChars = message.Length;
+            byte[] signature = new byte[ nChars * 2 ];
+            int p = 0;
+            for ( int i = 0 ; i < nChars ; i++ ) {
+                UInt16 s = (UInt16)ModularExponentiation( message[ i ], d, n );
+                signature[ p ] = (byte)( s & 0xff );
+                p++;
+                signature[ p ] = (byte)( s >> 8 );
+                p++;
+            }
+            return signature;
+        }
+
+        /// <summary>
+        /// Verify a byte array signature with the public key(n, e)
+        /// </summary>
+        /// <param name="signature"></param>
+        /// <returns></returns>
+        public byte[] VerifyBytes( byte[] signature ) {
+            int nChars = signature.Length / 2;
+            byte[] message = new byte[ nChars ];
+            int p = 0;
+            for ( int i = 0 ; i < nChars ; i++ ) {
+                byte sl = signature[ p ];
+                p++;
+                byte sh = signature[ p ];
+                p++;
+                UInt16 s = (UInt16)( sl | ( sh << 8 ) );
+                message[ i ] = (byte)ModularExponentiation( s, e, n );
+            }
+            return message;
+        }
+
+        /// <summary>
+        /// Verify a byte array signature with the public key(n, e)
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="signature"></param>
+        /// <returns></returns>
+        public bool VerifyBytes( byte[] message, byte[] signature ) {
+            if ( message.Length * 2 != signature.Length ) {
+                return false;
+            }
+
+            int nChars = message.Length;
+            int p = 0;
+            for ( int i = 0 ; i < nChars ; i++ ) {
+                byte sl = signature[ p ];
+                p++;
+                byte sh = signature[ p ];
+                p++;
+                UInt16 s = (UInt16)( sl | ( sh << 8 ) );
+                byte decryptedMessageByte = (byte)ModularExponentiation( s, e, n );
+                if ( message[ i ] != decryptedMessageByte ) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>

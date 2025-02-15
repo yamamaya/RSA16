@@ -42,6 +42,21 @@ namespace EncryptionExperiments {
                         }
                     }
                 }
+
+                // Sign and Verify of 256 bytes
+                {
+                    byte[] message = new byte[ 256 ];
+                    for ( int i = 0 ; i < 256 ; i++ ) {
+                        message[ i ] = (byte)RandomNumberGenerator.GetInt32( 0, 256 );
+                    }
+                    byte[] signature = rsa16.SignBytes( message );
+                    bool verified = rsa16.VerifyBytes( message, signature );
+                    if ( !verified ) {
+                        Console.WriteLine( "Mismatch at Test #3" );
+                        Console.ReadKey();
+                        break;
+                    }
+                }
             }
 
             Console.ReadKey();
