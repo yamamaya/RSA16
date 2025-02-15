@@ -6,6 +6,7 @@ RSA16 is a minimalistic implementation of RSA encryption using only 16-bit keys.
 
 - 16-bit RSA key generation
 - Basic encryption and decryption
+- Signing and verification
 - Simple implementation of CBC mode
 - C and C# implementations
 - Extremely lightweight
