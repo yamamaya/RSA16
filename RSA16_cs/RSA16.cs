@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 
-namespace EncryptionExperiments {
+namespace OaktreeLab.Utils.Cryptography {
     /// <summary>
     /// 16-bit RSA encryptor
     /// </summary>

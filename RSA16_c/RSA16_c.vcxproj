@@ -22,7 +22,7 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{13b71c66-bfa2-4ac2-bb85-8746cb516499}</ProjectGuid>
-    <RootNamespace>EncryptionExperimentsC</RootNamespace>
+    <RootNamespace>RSA16_C</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
