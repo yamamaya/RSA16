@@ -23,6 +23,10 @@ int main() {
     // Generate RSA keys
     uint16_t n, e, d;
     RSA16_GenerateKeys( &n, &e, &d );
+    printf( "RSA16 keys generated:\n" );
+    printf( "Modulus (n) = %d\n", n );
+    printf( "Public exponent (e) = %d\n", e );
+    printf( "Private exponent (d) = %d\n", d );
 
     // Initialize the RSA16 structure with the keys
     RSA16 rsa;
@@ -49,7 +53,7 @@ int main() {
     RSA16_DecryptBytes( &rsa, cipher, MESSAGE_SIZE * 2, decrypted );
 
     // Print the message, cipher, and decrypted message
-    printf( "Message: (%d bytes)\n", MESSAGE_SIZE );
+    printf( "\nMessage: (%d bytes)\n", MESSAGE_SIZE );
     DumpBytes( message, MESSAGE_SIZE );
 
     printf( "\nCipher: (%d bytes)\n", MESSAGE_SIZE * 2 );
