@@ -24,6 +24,8 @@ namespace OaktreeLab.Utils.Cryptography {
         /// </summary>
         /// <remarks>
         /// Initializes an RSA encryptor with the specified keys (n, e, d).
+        /// If you use only public key for encryption and verification, set d to 0.
+        /// If you use only private key for decryption and signing, set e to 0.
         /// </remarks>
         /// <param name="n"></param>
         /// <param name="e"></param>
@@ -36,6 +38,8 @@ namespace OaktreeLab.Utils.Cryptography {
         /// </summary>
         /// <remarks>
         /// Initializes an RSA encryptor with the specified keys (n, e, d) and the specified CBC mode initialization vector.
+        /// If you use only public key for encryption and verification, set d to 0.
+        /// If you use only private key for decryption and signing, set e to 0.
         /// </remarks>
         /// <param name="n"></param>
         /// <param name="e"></param>
@@ -110,7 +114,7 @@ namespace OaktreeLab.Utils.Cryptography {
         /// <summary>
         /// Generate keys
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Tuple of key components (n, e, d)</returns>
         public static (UInt16 n, UInt16 e, UInt16 d) GenerateKeys() {
             UInt16 n, e, d;
             // Generate two 16-bit primes p and q
@@ -340,7 +344,7 @@ namespace OaktreeLab.Utils.Cryptography {
         }
 
         /// <summary>
-        /// Verify a signature with the public key(n, e)
+        /// Verify a signature with public key(n, e) and match it with the message
         /// </summary>
         /// <param name="message"></param>
         /// <param name="signature"></param>
@@ -390,7 +394,7 @@ namespace OaktreeLab.Utils.Cryptography {
         }
 
         /// <summary>
-        /// Verify a byte array signature with the public key(n, e)
+        /// Verify a byte array signature with the public key(n, e) and match it with the message
         /// </summary>
         /// <param name="message"></param>
         /// <param name="signature"></param>
