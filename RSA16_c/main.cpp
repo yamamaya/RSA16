@@ -32,8 +32,9 @@ int main() {
     uint8_t* message = (uint8_t*)malloc( MESSAGE_SIZE );
     uint8_t* cipher = (uint8_t*)malloc( MESSAGE_SIZE * 2 );
     uint8_t* decrypted = (uint8_t*)malloc( MESSAGE_SIZE );
+    uint8_t* signature = (uint8_t*)malloc( MESSAGE_SIZE * 2 );
 
-    if ( message == NULL || cipher == NULL || decrypted == NULL ) {
+    if ( message == NULL || cipher == NULL || decrypted == NULL || signature == NULL ) {
         printf( "Memory allocation failed!\n" );
         return 1;
     }
@@ -48,13 +49,13 @@ int main() {
     RSA16_DecryptBytes( &rsa, cipher, MESSAGE_SIZE * 2, decrypted );
 
     // Print the message, cipher, and decrypted message
-    printf( "Message:\n" );
+    printf( "Message: (%d bytes)\n", MESSAGE_SIZE );
     DumpBytes( message, MESSAGE_SIZE );
 
-    printf( "\nCipher:\n" );
+    printf( "\nCipher: (%d bytes)\n", MESSAGE_SIZE * 2 );
     DumpBytes( cipher, MESSAGE_SIZE * 2 );
 
-    printf( "\nDecrypted message:\n" );
+    printf( "\nDecrypted message: (%d bytes)\n", MESSAGE_SIZE );
     DumpBytes( decrypted, MESSAGE_SIZE );
 
     // Print the decrypted message as a string
@@ -76,11 +77,26 @@ int main() {
         printf( "\nDecryption failed!\n" );
     }
 
+    // Sign the message
+    RSA16_SignBytes( &rsa, message, MESSAGE_SIZE, signature );
+    printf( "\nSignature: (%d bytes)\n", MESSAGE_SIZE * 2 );
+    DumpBytes( signature, MESSAGE_SIZE * 2 );
+
+    // Verify the signature
+    bool verified = RSA16_ValidateSignatureBytes( &rsa, message, MESSAGE_SIZE, signature );
+    if ( verified ) {
+        printf( "\nSignature verified!\n" );
+    } else {
+        printf( "\nSignature verification failed!\n" );
+    }
+
     // Free memory
     free( message );
     free( cipher );
     free( decrypted );
+    free( signature );
 
+    printf( "\nHit Enter to exit...\n" );
     getchar();
 
     return 0;
