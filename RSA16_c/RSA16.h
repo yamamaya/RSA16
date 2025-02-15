@@ -5,14 +5,16 @@
 
 // RSA16: RSA with 16-bit keys
 typedef struct {
-    uint16_t n;
-    uint16_t e;
-    uint16_t d;
-    uint8_t IV_enc;
-    uint8_t IV_dec;
+    uint16_t n;      // Modulus (used for all operations)
+    uint16_t e;      // Public exponent (used for encryption and verification)
+    uint16_t d;      // Private exponent (used for decryption and signing)
+    uint8_t IV_enc;  // Initialization vector for encryption
+    uint8_t IV_dec;  // Initialization vector for decryption
 } RSA16;
 
 // Initialize the RSA16 structure with the given keys and IV
+// If you use only public key for encryption and verification, set d to 0.
+// If you use only private key for decryption and signing, set e to 0.
 void RSA16_Init( RSA16* rsa, uint16_t n, uint16_t e, uint16_t d, uint8_t iv = 0 );
 
 // Reset the IV for encryption and decryption
