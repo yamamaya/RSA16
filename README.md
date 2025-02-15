@@ -18,6 +18,11 @@ RSA16 is a minimalistic implementation of RSA encryption using only 16-bit keys.
 
 Due to its extremely small key size, RSA16 is trivially breakable using brute-force methods or simple cryptanalysis techniques. It is provided as an educational tool or for scenarios where full cryptographic security is unnecessary.
 
+## Installation
+Clone this repository and copy the necessary files to your project directory. No friendly installation system is provided.
+
+This project can be open by Visual Studio 2022 and doubles as unit tests and demonstration of the library.
+
 ## Usage
 
 ### Generating Keys (C)
