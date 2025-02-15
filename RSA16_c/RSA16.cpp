@@ -88,31 +88,31 @@ bool RSA16_ValidateSignature( RSA16* rsa, uint8_t message, uint16_t signature ) 
 }
 
 // Sign an array of bytes with private key(n, d)
-void RSA16_SignBytes( RSA16* rsa, const uint8_t* message, size_t message_len, uint8_t* cipher ) {
+void RSA16_SignBytes( RSA16* rsa, const uint8_t* message, size_t message_len, uint8_t* signature ) {
     size_t nChars = message_len;
     size_t p = 0;
     for ( size_t i = 0; i < nChars; i++ ) {
         // Encrypt the message byte
         uint16_t c = (uint16_t)ModularExponentiation( message[ i ], rsa->d, rsa->n );
         // Store the low byte
-        cipher[ p ] = (uint8_t)( c & 0xff );
+        signature[ p ] = (uint8_t)( c & 0xff );
         p++;
         // Store the high byte
-        cipher[ p ] = (uint8_t)( c >> 8 );
+        signature[ p ] = (uint8_t)( c >> 8 );
         p++;
     }
 }
 
-// Verify an array of bytes with public key(n, e)
-void RSA16_VerifyBytes( RSA16* rsa, const uint8_t* cipher, size_t cipher_len, uint8_t* message ) {
-    size_t nChars = cipher_len / 2;
+// Verify a signature with public key(n, e)
+void RSA16_VerifyBytes( RSA16* rsa, const uint8_t* signature, size_t signature_len, uint8_t* message ) {
+    size_t nChars = signature_len / 2;
     size_t p = 0;
     for ( size_t i = 0; i < nChars; i++ ) {
         // Retrieve the low byte
-        uint8_t cl = cipher[ p ];
+        uint8_t cl = signature[ p ];
         p++;
         // Retrieve the high byte
-        uint8_t ch = cipher[ p ];
+        uint8_t ch = signature[ p ];
         p++;
         // Decrypt the message byte
         uint16_t c = (uint16_t)( cl | ( ch << 8 ) );
