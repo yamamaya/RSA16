@@ -14,11 +14,11 @@ namespace EncryptionExperiments {
                 {
                     for ( int i = 0 ; i <= 255 ; i++ ) {
                         byte message = (byte)i;
-                        UInt16 chiper = rsa16.Encrypt( message );
-                        byte decrypted = rsa16.Decrypt( chiper );
+                        UInt16 cipher = rsa16.Encrypt( message );
+                        byte decrypted = rsa16.Decrypt( cipher );
                         if ( message != decrypted ) {
                             Console.WriteLine( "Mismatch at Test #1" );
-                            Console.WriteLine( $"message: {message}, chiper: {chiper:x4}, decrypted: {decrypted}" );
+                            Console.WriteLine( $"message: {message}, chiper: {cipher:x4}, decrypted: {decrypted}" );
                             Console.ReadKey();
                             break;
                         }
@@ -31,8 +31,8 @@ namespace EncryptionExperiments {
                     for ( int i = 0 ; i < 256 ; i++ ) {
                         message[ i ] = (byte)RandomNumberGenerator.GetInt32( 0, 256 );
                     }
-                    byte[] chiper = rsa16.EncryptBytes( message );
-                    byte[] decrypted = rsa16.DecryptBytes( chiper );
+                    byte[] cipher = rsa16.Encrypt( message );
+                    byte[] decrypted = rsa16.Decrypt( cipher );
                     for ( int i = 0 ; i < 256 ; i++ ) {
                         if ( message[ i ] != decrypted[ i ] ) {
                             Console.WriteLine( "Mismatch at Test #2" );
@@ -49,8 +49,8 @@ namespace EncryptionExperiments {
                     for ( int i = 0 ; i < 256 ; i++ ) {
                         message[ i ] = (byte)RandomNumberGenerator.GetInt32( 0, 256 );
                     }
-                    byte[] signature = rsa16.SignBytes( message );
-                    bool verified = rsa16.VerifyBytes( message, signature );
+                    byte[] signature = rsa16.Sign( message );
+                    bool verified = rsa16.Verify( message, signature );
                     if ( !verified ) {
                         Console.WriteLine( "Mismatch at Test #3" );
                         Console.ReadKey();

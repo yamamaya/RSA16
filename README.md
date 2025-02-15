@@ -52,7 +52,7 @@ RSA16_EncryptBytes( &rsa, message, MESSAGE_SIZE, cipher );
 ### Encrypting a Message (C#)
 ```csharp
 byte[] message = new byte[MESSAGE_SIZE];
-byte[] chiper = rsa16.EncryptBytes( message );
+byte[] chiper = rsa16.Encrypt( message );
 ```
 
 ### Decrypting a Message
@@ -63,7 +63,7 @@ RSA16_DecryptBytes( &rsa, cipher, MESSAGE_SIZE * 2, decrypted );
 
 ### Decrypting a Message (C#)
 ```csharp
-byte[] decrypted = rsa16.DecryptBytes( chiper );
+byte[] decrypted = rsa16.Decrypt( chiper );
 ```
 
 ## Limitations

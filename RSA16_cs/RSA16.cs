@@ -269,7 +269,7 @@ namespace OaktreeLab.Utils.Cryptography {
         /// </remarks>
         /// <param name="message"></param>
         /// <returns></returns>
-        public byte[] EncryptBytes( byte[] message ) {
+        public byte[] Encrypt( byte[] message ) {
             int nChars = message.Length;
             byte c_prev = IV_enc;
             byte[] cipher = new byte[ nChars * 2 ];
@@ -301,7 +301,7 @@ namespace OaktreeLab.Utils.Cryptography {
         /// </remarks>
         /// <param name="cipher"></param>
         /// <returns></returns>
-        public byte[] DecryptBytes( byte[] cipher ) {
+        public byte[] Decrypt( byte[] cipher ) {
             int nChars = cipher.Length / 2;
             byte[] message = new byte[ nChars ];
             byte c_prev = IV_dec;
@@ -359,7 +359,7 @@ namespace OaktreeLab.Utils.Cryptography {
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public byte[] SignBytes( byte[] message ) {
+        public byte[] Sign( byte[] message ) {
             int nChars = message.Length;
             byte[] signature = new byte[ nChars * 2 ];
             int p = 0;
@@ -378,7 +378,7 @@ namespace OaktreeLab.Utils.Cryptography {
         /// </summary>
         /// <param name="signature"></param>
         /// <returns></returns>
-        public byte[] VerifyBytes( byte[] signature ) {
+        public byte[] Verify( byte[] signature ) {
             int nChars = signature.Length / 2;
             byte[] message = new byte[ nChars ];
             int p = 0;
@@ -399,7 +399,7 @@ namespace OaktreeLab.Utils.Cryptography {
         /// <param name="message"></param>
         /// <param name="signature"></param>
         /// <returns></returns>
-        public bool VerifyBytes( byte[] message, byte[] signature ) {
+        public bool Verify( byte[] message, byte[] signature ) {
             if ( message.Length * 2 != signature.Length ) {
                 return false;
             }
