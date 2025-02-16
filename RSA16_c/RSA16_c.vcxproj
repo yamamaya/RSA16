@@ -130,10 +130,15 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RSA16.cpp" />
     <ClCompile Include="RSA16_keygen.cpp" />
+    <ClCompile Include="RSA16_sign.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RSA16.h" />
     <ClInclude Include="RSA16_keygen.h" />
+    <ClInclude Include="RSA16_sign.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
