@@ -74,6 +74,18 @@ RSA16_DecryptBytes( &rsa, cipher, MESSAGE_SIZE * 2, decrypted );
 byte[] decrypted = rsa16.Decrypt( cipher );
 ```
 
+### Signing and Verifying a Message (C)
+```c
+uint32_t signed_crc = RSA16_SignCRC( &rsa, message, MESSAGE_SIZE );
+bool verified = RSA16_ValidateSignatureCRC( &rsa, message, MESSAGE_SIZE, signed_crc );
+```
+
+### Signing and Verifying a Message (C#)
+```csharp
+UInt32 signed_crc = rsa16.SignCRC16( message );
+bool verified = rsa16.VerifyCRC16( message, signed_crc );
+```
+
 ## Limitations
 
 - Easily breakable
