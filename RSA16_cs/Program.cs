@@ -5,69 +5,120 @@ using OaktreeLab.Utils.Cryptography;
 namespace EncryptionExperiments {
     internal class Program {
         static void Main( string[] args ) {
-            {
-                // 1000 time durability test
-                for ( int j = 0 ; j < 1000 ; j++ ) {
-                    (UInt16 n, UInt16 e, UInt16 d) = RSA16.GenerateKeys();
-                    var rsa16 = new RSA16( n, e, d, (byte)( j % 256 ) );
-                    Console.WriteLine( $"Test #{j} n: {n}, e: {e}, d: {d}" );
 
-                    // Encription and Decryption of 256 messages
-                    {
-                        for ( int i = 0 ; i <= 255 ; i++ ) {
-                            byte message = (byte)i;
-                            UInt16 cipher = rsa16.Encrypt( message );
-                            byte decrypted = rsa16.Decrypt( cipher );
-                            if ( message != decrypted ) {
-                                Console.WriteLine( "Mismatch at Test #1" );
-                                Console.WriteLine( $"message: {message}, chiper: {cipher:x4}, decrypted: {decrypted}" );
-                                Console.ReadKey();
-                                break;
-                            }
-                        }
-                    }
+            bool result = true;
 
-                    // Encryption and Decryption of 256 bytes
-                    {
-                        byte[] message = new byte[ 256 ];
-                        for ( int i = 0 ; i < 256 ; i++ ) {
-                            message[ i ] = (byte)RandomNumberGenerator.GetInt32( 0, 256 );
-                        }
-                        byte[] cipher = rsa16.Encrypt( message );
-                        byte[] decrypted = rsa16.Decrypt( cipher );
-                        for ( int i = 0 ; i < 256 ; i++ ) {
-                            if ( message[ i ] != decrypted[ i ] ) {
-                                Console.WriteLine( "Mismatch at Test #2" );
-                                Console.WriteLine( $"Message: {message[ i ]}, Decrypted: {decrypted[ i ]}" );
-                                Console.ReadKey();
-                                break;
-                            }
-                        }
-                    }
+            // Test #1: 1000 times durability test. Repeat test #2 - #4 for 1000 times.
+            result &= Test1();
 
-                    // Sign and Verify of 256 bytes
-                    {
-                        byte[] message = new byte[ 256 ];
-                        for ( int i = 0 ; i < 256 ; i++ ) {
-                            message[ i ] = (byte)RandomNumberGenerator.GetInt32( 0, 256 );
-                        }
-                        byte[] signature = rsa16.Sign( message );
-                        bool verified = rsa16.Verify( message, signature );
-                        if ( !verified ) {
-                            Console.WriteLine( "Mismatch at Test #3" );
-                            Console.ReadKey();
-                            break;
+            // Test #4: Decrypt a cipher text encrypted by other RSA16 implementation.
+            result &= Test4();
+
+            // Test #5: Sign and verify a message with CRC16 signature.
+            result &= Test5();
+
+            // Test #6: Verify a CRC16 signature signed by other RSA16 implementation.
+            result &= Test6();
+
+            Console.WriteLine();
+            Console.WriteLine( "********** All Tests Finished ********" );
+            if ( result ) {
+                Console.WriteLine();
+                Console.WriteLine( "All tests passed." );
+            } else {
+                Console.WriteLine();
+                Console.WriteLine( "Some tests failed." );
+            }
+
+            Console.ReadKey();
+        }
+
+        private const string SampleMessage = "The quick, brown fox jumps over a lazy dog. DJs flock by when MTV ax quiz prog. Junk MTV quiz graced by fox whelps. Bawds jog, flick quartz, vex nymphs. Waltz, bad nymph, for quick jigs vex! Fox nymphs grab quick-jived waltz. Brick quiz whangs jumpy veldt.";
+
+        /// <summary>
+        /// Test #1
+        /// </summary>
+        /// <remarks>
+        /// 1000 times durability test. Repeat test #2 - #4 for 1000 times.
+        /// </remarks>
+        /// <returns></returns>
+        private static bool Test1() {
+            // 1000 time durability test
+            Console.WriteLine();
+            Console.WriteLine( "********** Test #1 **********" );
+            Console.WriteLine( "1000 times durability test. Repeat test #2 - #4 for 1000 times." );
+            Console.WriteLine();
+            for ( int j = 0 ; j < 1000 ; j++ ) {
+                (UInt16 n, UInt16 e, UInt16 d) = RSA16.GenerateKeys();
+                var rsa16 = new RSA16( n, e, d, (byte)( j % 256 ) );
+                Console.Write( $"Test #{j} n: {n}, e: {e}, d: {d} ... " );
+
+                // Test #2: Encription and Decryption of 256 messages
+                {
+                    for ( int i = 0 ; i <= 255 ; i++ ) {
+                        byte message = (byte)i;
+                        UInt16 cipher = rsa16.Encrypt( message );
+                        byte decrypted = rsa16.Decrypt( cipher );
+                        if ( message != decrypted ) {
+                            Console.WriteLine( "Mismatch at Test #2" );
+                            Console.WriteLine( $"message: {message}, chiper: {cipher:x4}, decrypted: {decrypted}" );
+                            return false;
                         }
                     }
                 }
-            }
 
-            {
-                // Test #4
-                Console.WriteLine();
-                Console.WriteLine( "Test #4: Decrypting a message encrypted by other implementation" );
-                // This message was encrypted with the public key (n: 37909, e: 5707) and default IV
-                byte[] cipher = new byte[ 512 ] {
+                // Test #3: Encryption and Decryption of 256 bytes by CBC mode
+                {
+                    byte[] message = new byte[ 256 ];
+                    for ( int i = 0 ; i < 256 ; i++ ) {
+                        message[ i ] = (byte)RandomNumberGenerator.GetInt32( 0, 256 );
+                    }
+                    byte[] cipher = rsa16.Encrypt( message );
+                    byte[] decrypted = rsa16.Decrypt( cipher );
+                    for ( int i = 0 ; i < 256 ; i++ ) {
+                        if ( message[ i ] != decrypted[ i ] ) {
+                            Console.WriteLine( "Mismatch at Test #3" );
+                            Console.WriteLine( $"Message: {message[ i ]}, Decrypted: {decrypted[ i ]}" );
+                            return false;
+                        }
+                    }
+                }
+
+                // Test #4: Sign and Verify of 256 bytes
+                {
+                    byte[] message = new byte[ 256 ];
+                    for ( int i = 0 ; i < 256 ; i++ ) {
+                        message[ i ] = (byte)RandomNumberGenerator.GetInt32( 0, 256 );
+                    }
+                    byte[] signature = rsa16.Sign( message );
+                    bool verified = rsa16.Verify( message, signature );
+                    if ( !verified ) {
+                        Console.WriteLine( "Mismatch at Test #4" );
+                        return false;
+                    }
+                }
+
+                Console.WriteLine( "Passed" );
+            }
+            Console.WriteLine();
+            Console.WriteLine( "Test #1 all iterations passed" );
+            return true;
+        }
+
+        /// <summary>
+        /// Test #4
+        /// </summary>
+        /// <remarks>
+        /// Decrypt a cipher text encrypted by other RSA16 implementation.
+        /// </remarks>
+        /// <returns></returns>
+        private static bool Test4() {
+            Console.WriteLine();
+            Console.WriteLine( "********** Test #4 **********" );
+            Console.WriteLine( "Decrypt a cipher text encrypted by other RSA16 implementation." );
+
+            // This message was encrypted with the public key (n: 37909, e: 5707) and default IV
+            byte[] cipher = new byte[ 512 ] {
                     0x46, 0x00, 0xC7, 0x62, 0x4E, 0x76, 0xAA, 0x92, 0xB8, 0xC1, 0x2D, 0xBB, 0xBA, 0x88, 0x85, 0xE4,
                     0x85, 0xA8, 0xD3, 0x9A, 0xDD, 0x89, 0xE7, 0x96, 0x16, 0xD4, 0xCF, 0xCB, 0xDA, 0xB7, 0x1B, 0xD1,
                     0x92, 0x35, 0xF0, 0x21, 0x8C, 0x2D, 0xDA, 0x70, 0xC3, 0x62, 0x89, 0x28, 0x57, 0x0B, 0xB8, 0x24,
@@ -101,28 +152,98 @@ namespace EncryptionExperiments {
                     0x94, 0xEF, 0xF0, 0xB8, 0x6B, 0xD1, 0xC6, 0xA7, 0x17, 0xE4, 0x7D, 0xB5, 0x20, 0xAD, 0x32, 0xC5,
                     0x6C, 0xFF, 0x33, 0xBC, 0x63, 0xE7, 0xB6, 0xC9, 0x0F, 0xBC, 0xDA, 0xE4, 0xA7, 0xD8, 0xC8, 0xA9
                 };
-                string CorrectAnswer = "The quick, brown fox jumps over a lazy dog. DJs flock by when MTV ax quiz prog. Junk MTV quiz graced by fox whelps. Bawds jog, flick quartz, vex nymphs. Waltz, bad nymph, for quick jigs vex! Fox nymphs grab quick-jived waltz. Brick quiz whangs jumpy veldt.";
 
-                // Initialize the RSA16 object with the private key (n: 37909, d: 25427) and default IV
-                RSA16 rsa16 = new RSA16( 37909, 0, 25427 );
-                byte[] decrypted = rsa16.Decrypt( cipher );
-                foreach ( byte b in decrypted ) {
-                    if ( b >= 32 && b <= 126 ) {
-                        Console.Write( (char)b );
-                    } else {
-                        Console.Write( '.' );
-                    }
-                }
-                Console.WriteLine();
-                string decryptedMessage = System.Text.Encoding.ASCII.GetString( decrypted );
-                if ( decryptedMessage == CorrectAnswer ) {
-                    Console.WriteLine( "Test #4 passed" );
+            // Initialize the RSA16 object with the private key (n: 37909, d: 25427) and default IV
+            RSA16 rsa16 = new RSA16( 37909, 0, 25427 );
+            byte[] decrypted = rsa16.Decrypt( cipher );
+            foreach ( byte b in decrypted ) {
+                if ( b >= 32 && b <= 126 ) {
+                    Console.Write( (char)b );
                 } else {
-                    Console.WriteLine( "Mismatch at Test #4" );
+                    Console.Write( '.' );
                 }
             }
+            Console.WriteLine();
+            string decryptedMessage = System.Text.Encoding.ASCII.GetString( decrypted );
+            Console.WriteLine();
+            if ( decryptedMessage == SampleMessage ) {
+                Console.WriteLine( "Test #4 passed" );
+            } else {
+                Console.WriteLine( "Mismatch at Test #4" );
+                return false;
+            }
+            return true;
+        }
 
-            Console.ReadKey();
+        /// <summary>
+        /// Test #5
+        /// </summary>
+        /// <remarks>
+        /// Sign and verify a message with CRC16 signature.
+        /// </remarks>
+        /// <returns></returns>
+        private static bool Test5() {
+            Console.WriteLine();
+            Console.WriteLine( "********** Test #5 **********" );
+            Console.WriteLine( "Sign and verify a message with CRC16 signature." );
+
+            // Prepare the message byte array
+            byte[] message = SampleMessage.ToCharArray().Select( c => (byte)c ).ToArray();
+
+            // Initialize the RSA16 object with random key
+            RSA16 rsa16 = new RSA16();
+
+            // Sign the message
+            UInt32 signature = rsa16.SignCRC16( message );
+
+            Console.WriteLine();
+            Console.WriteLine( $"Signature: {signature:x8}" );
+
+            // Verify the signature
+            bool verified = rsa16.VerifyCRC16( message, signature );
+
+            Console.WriteLine();
+            if ( verified ) {
+                Console.WriteLine( "Test #5 passed" );
+            } else {
+                Console.WriteLine( "Mismatch at Test #5" );
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Test #6
+        /// </summary>
+        /// <remarks
+        /// Verify a CRC16 signature signed by other RSA16 implementation.
+        /// </remarks>
+        /// <returns></returns>
+        private static bool Test6() {
+            Console.WriteLine();
+            Console.WriteLine( "********** Test #6 **********" );
+            Console.WriteLine( "Verify a CRC16 signature signed by other RSA16 implementation." );
+
+            // This signature was signed by the private key (n: 37909, d: 25427)
+            UInt32 signature = 0x34823CC5;
+
+            // Prepare the message byte array
+            byte[] message = SampleMessage.ToCharArray().Select( c => (byte)c ).ToArray();
+
+            // Initialize the RSA16 object with the public key (n: 37909, e: 5707)
+            RSA16 rsa16 = new RSA16( 37909, 5707, 0 );
+
+            // Verify the signature
+            bool verified = rsa16.VerifyCRC16( message, signature );
+
+            Console.WriteLine();
+            if ( verified ) {
+                Console.WriteLine( "Test #6 passed" );
+            } else {
+                Console.WriteLine( "Mismatch at Test #6" );
+                return false;
+            }
+            return true;
         }
     }
 }

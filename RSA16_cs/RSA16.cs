@@ -424,6 +424,31 @@ namespace OaktreeLab.Utils.Cryptography {
         }
 
         /// <summary>
+        /// Sign a message with the private key(n, d) and CRC16
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public UInt32 SignCRC16( byte[] message ) {
+            UInt16 crc = CalculateCRC16( message );
+            UInt16 lower = (UInt16)ModularExponentiation( (byte)( crc & 0xff ), d, n );
+            UInt16 upper = (UInt16)ModularExponentiation( (byte)( crc >> 8 ), d, n );
+            return (UInt32)lower | ( (UInt32)upper << 16 );
+        }
+
+        /// <summary>
+        /// Verify a message with the public key(n, e) and CRC16
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="signature"></param>
+        /// <returns></returns>
+        public bool VerifyCRC16( byte[] message, UInt32 signature ) {
+            UInt16 crc = CalculateCRC16( message );
+            bool matchLower = Verify( (byte)(crc & 0xff ), (UInt16)( signature & 0xffff ) );
+            bool matchUpper = Verify( (byte)( crc >> 8 ), (UInt16)( signature >> 16 ) );
+            return matchLower && matchUpper;
+        }
+
+        /// <summary>
         /// Modular exponentiation
         /// </summary>
         /// <param name="baseValue"></param>
@@ -441,6 +466,26 @@ namespace OaktreeLab.Utils.Cryptography {
                 exponent >>= 1;
             }
             return (int)result;
+        }
+
+        /// <summary>
+        /// Calculate CRC16
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private static UInt16 CalculateCRC16( byte[] data ) {
+            UInt16 crc = 0;
+            foreach ( byte d in data ) {
+                crc ^= d;
+                for ( int j = 0 ; j < 8 ; j++ ) {
+                    if ( ( crc & 1 ) == 1 ) {
+                        crc = (UInt16)( ( crc >> 1 ) ^ 0xA001 );
+                    } else {
+                        crc = (UInt16)( crc >> 1 );
+                    }
+                }
+            }
+            return crc;
         }
     }
 }
