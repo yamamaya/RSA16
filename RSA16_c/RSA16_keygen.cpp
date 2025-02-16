@@ -9,11 +9,11 @@
 #include "RSA16.h"
 #include "RSA16_keygen.h"
 
-static uint16_t GenerateRandomPrime( int minValue, int maxValue );
+static uint16_t GenerateRandomPrime( uint16_t minValue, uint16_t maxValue );
 static bool IsPrime( uint16_t number );
-static uint16_t GenerateRandomE( int phi_n );
-static int ModularInverse( int a, int m );
-static int ExtendedGcd( int a, int b, int* x, int* y );
+static uint16_t GenerateRandomE( uint16_t phi_n );
+static uint16_t ModularInverse( uint16_t a, uint16_t m );
+static uint16_t ExtendedGcd( uint16_t a, uint16_t b, int16_t* x, int16_t* y );
 
 // Initialize the RSA16 structure with a random key
 void RSA16_InitWithRandomKey( RSA16* rsa ) {
@@ -33,13 +33,13 @@ void RSA16_GenerateKeys( uint16_t* n, uint16_t* e, uint16_t* d ) {
         *n = (uint16_t)( p * q );
     } while ( *n < 256 );
 
-    int phi_n = ( p - 1 ) * ( q - 1 );
+    uint16_t phi_n = ( p - 1 ) * ( q - 1 );
     *e = GenerateRandomE( phi_n );
     *d = (uint16_t)ModularInverse( *e, phi_n );
 }
 
 // Generate a random prime number in the range [minValue, maxValue]
-static uint16_t GenerateRandomPrime( int minValue, int maxValue ) {
+static uint16_t GenerateRandomPrime( uint16_t minValue, uint16_t maxValue ) {
     while ( true ) {
         uint16_t candidate = (uint16_t)( rand() % ( maxValue - minValue + 1 ) + minValue );
         if ( IsPrime( candidate ) ) {
@@ -68,10 +68,10 @@ static bool IsPrime( uint16_t number ) {
 }
 
 // Generate a random number e such that 1 < e < phi_n and gcd( e, phi_n ) = 1
-static uint16_t GenerateRandomE( int phi_n ) {
+static uint16_t GenerateRandomE( uint16_t phi_n ) {
     while ( true ) {
         uint16_t candidate = (uint16_t)( rand() % ( phi_n - 2 ) + 2 );
-        int x, y;
+        int16_t x, y;
         if ( ExtendedGcd( candidate, phi_n, &x, &y ) == 1 ) {
             return candidate;
         }
@@ -79,25 +79,25 @@ static uint16_t GenerateRandomE( int phi_n ) {
 }
 
 // Compute the modular inverse of a modulo m
-static int ModularInverse( int a, int m ) {
-    int x, y;
-    int g = ExtendedGcd( a, m, &x, &y );
+static uint16_t ModularInverse( uint16_t a, uint16_t m ) {
+    int16_t x, y;
+    uint16_t g = ExtendedGcd( a, m, &x, &y );
     if ( g != 1 ) {
         fprintf( stderr, "modular inverse does not exist\n" );
         exit( EXIT_FAILURE );
     }
-    return ( x % m + m ) % m;
+    return uint16_t( ( x % m + m ) % m );
 }
 
 // Extended Euclidean algorithm
-static int ExtendedGcd( int a, int b, int* x, int* y ) {
+static uint16_t ExtendedGcd( uint16_t a, uint16_t b, int16_t* x, int16_t* y ) {
     if ( a == 0 ) {
         *x = 0;
         *y = 1;
         return b;
     }
-    int x1, y1;
-    int gcd = ExtendedGcd( b % a, a, &x1, &y1 );
+    int16_t x1, y1;
+    uint16_t gcd = ExtendedGcd( b % a, a, &x1, &y1 );
     *x = y1 - ( b / a ) * x1;
     *y = x1;
     return gcd;

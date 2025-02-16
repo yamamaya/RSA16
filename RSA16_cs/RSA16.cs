@@ -132,7 +132,7 @@ namespace OaktreeLab.Utils.Cryptography {
                 n = (UInt16)( p * q );
             } while ( n < 256 );
 
-            int phi_n = ( p - 1 ) * ( q - 1 );
+            UInt16 phi_n = (UInt16)( ( p - 1 ) * ( q - 1 ) );
 
             // Generate public exponent e
             e = GenerateRandomE( phi_n );
@@ -149,7 +149,7 @@ namespace OaktreeLab.Utils.Cryptography {
         /// <param name="minValue"></param>
         /// <param name="maxValue"></param>
         /// <returns></returns>
-        private static UInt16 GenerateRandomPrime( int minValue, int maxValue ) {
+        private static UInt16 GenerateRandomPrime( UInt16 minValue, UInt16 maxValue ) {
             while ( true ) {
                 UInt16 candidate = (UInt16)RandomNumberGenerator.GetInt32( minValue, maxValue );
                 if ( IsPrime( candidate ) ) {
@@ -186,7 +186,7 @@ namespace OaktreeLab.Utils.Cryptography {
         /// </summary>
         /// <param name="phi_n"></param>
         /// <returns></returns>
-        private static UInt16 GenerateRandomE( int phi_n ) {
+        private static UInt16 GenerateRandomE( UInt16 phi_n ) {
             while ( true ) {
                 UInt16 candidate = (UInt16)RandomNumberGenerator.GetInt32( 2, phi_n );
                 if ( ExtendedGcd( candidate, phi_n, out _, out _ ) == 1 ) {
@@ -202,12 +202,12 @@ namespace OaktreeLab.Utils.Cryptography {
         /// <param name="m"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        private static int ModularInverse( int a, int m ) {
-            int g = ExtendedGcd( a, m, out int x, out _ );
+        private static UInt16 ModularInverse( UInt16 a, UInt16 m ) {
+            UInt16 g = ExtendedGcd( a, m, out Int16 x, out _ );
             if ( g != 1 ) {
                 throw new Exception( "modular inverse does not exist" );
             }
-            return ( x % m + m ) % m;
+            return (UInt16)( ( x % m + m ) % m );
         }
 
         /// <summary>
@@ -218,15 +218,15 @@ namespace OaktreeLab.Utils.Cryptography {
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        private static int ExtendedGcd( int a, int b, out int x, out int y ) {
+        private static UInt16 ExtendedGcd( UInt16 a, UInt16 b, out Int16 x, out Int16 y ) {
             if ( a == 0 ) {
                 x = 0;
                 y = 1;
                 return b;
             }
-            int x1, y1;
-            int gcd = ExtendedGcd( b % a, a, out x1, out y1 );
-            x = y1 - (int)( b / a ) * x1;
+            Int16 x1, y1;
+            UInt16 gcd = ExtendedGcd( (UInt16)( b % a ), a, out x1, out y1 );
+            x = (Int16)( y1 - ( b / a ) * x1 );
             y = x1;
             return gcd;
         }
@@ -455,7 +455,7 @@ namespace OaktreeLab.Utils.Cryptography {
         /// <param name="exponent"></param>
         /// <param name="modulus"></param>
         /// <returns></returns>
-        private static int ModularExponentiation( UInt16 baseValue, UInt16 exponent, UInt16 modulus ) {
+        private static UInt16 ModularExponentiation( UInt16 baseValue, UInt16 exponent, UInt16 modulus ) {
             UInt16 result = 1;
             UInt16 power = (UInt16)( baseValue % modulus );
             while ( exponent > 0 ) {
@@ -465,7 +465,7 @@ namespace OaktreeLab.Utils.Cryptography {
                 power = (UInt16)( ( (UInt32)power * (UInt32)power ) % modulus );
                 exponent >>= 1;
             }
-            return (int)result;
+            return (UInt16)result;
         }
 
         /// <summary>
